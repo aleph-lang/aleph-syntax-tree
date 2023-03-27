@@ -2,6 +2,13 @@
 use regex::Regex;
 
 
+
+#[derive(Debug, PartialEq)]
+struct Rule {
+    token_name: String,
+    reprs: Vec<RuleRepr>
+}
+
 #[derive(PartialEq, Debug, Clone)]
 struct RuleRepr {
     repr: String,
@@ -9,6 +16,11 @@ struct RuleRepr {
     args: String
 }
 
+#[derive(PartialEq, Clone, Debug)]
+enum ParsingState {
+    Token,
+    Rules,
+}
 
 
 fn line_to_rule(line:&str) -> Option<RuleRepr> {
@@ -43,14 +55,64 @@ fn line_to_token(line: &str) -> Option<String> {
 
 
 
+fn read_grammar(file_content: String) -> Vec<Rule>{
+    let mut state= ParsingState::Token;
+
+    let end_rule = Regex::new(r"^\s*$").unwrap();
+
+    let mut current_rules: Vec<Rule> = Vec::new();
+    let mut current_reprs: Vec<RuleRepr> =  Vec::new();
+    let mut current_token: Option<String> = None;
+
+    for line in file_content.as_str().split("\n") {
+        match state.clone() {
+            ParsingState::Token => {
+                current_token  = line_to_token(line);
+                state = match current_token {
+                    Some(_) => ParsingState::Rules,
+                    _ => ParsingState::Token
+                };
+            },
+            ParsingState::Rules => {
+                state = match end_rule.captures(line) {
+                    Some(_) =>  {
+                        current_rules.push(
+                            Rule{
+                                token_name: current_token.clone().unwrap(),
+                                reprs: current_reprs.iter().map(|e|{e.clone()}).collect()
+                            }
+                            );
+                        ParsingState::Token
+                    },
+                    None =>{
+                        let r_repr = line_to_rule(line);
+                        match r_repr {
+                            Some(repr) => {
+                                current_reprs.push(repr);
+                            },
+                            None => {}
+                        };
+                        ParsingState::Rules
+                    }
+                };
+            }
+        }
+    }
+    current_rules
+}
+
 
 #[cfg(test)]
 mod test {
     use crate::{
         line_to_rule,
         line_to_token,
-        RuleRepr
+        read_grammar,
+        RuleRepr,
+        Rule
     };
+    use std::fs::File;
+    use std::io::Read;
 
     #[test]
     fn test_token() {
@@ -91,5 +153,13 @@ mod test {
             line_to_rule(line),
             Some(RuleRepr{ repr: "r\"-{0,1}[0-9]+\"".to_string(), node: "".to_string(), args:"$1".to_string()})
             );
+    }
+    #[test]
+    fn test_on_calc_file(){
+        let mut file = File::open("./test/calc/calc.alg").unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+        let res: Vec<Rule> = read_grammar(contents);
+        assert_eq!("", format!("{:?}", res));
     }
 }
