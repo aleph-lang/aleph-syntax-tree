@@ -29,7 +29,7 @@ fn line_to_rule(line:&str) -> Option<RuleRepr> {
         Some(m) =>{
             let r_expr = m.get(1).unwrap().as_str().to_string();
             match m.get(4) {
-                Some(w) => {
+                Some(_) => {
                     let r_node = m.get(4).unwrap().as_str().to_string();
                     let r_args = m.get(5).unwrap().as_str().to_string();
                     Some(RuleRepr { repr: r_expr, node: r_node, args: r_args})
