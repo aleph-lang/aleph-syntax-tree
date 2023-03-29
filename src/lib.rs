@@ -162,4 +162,12 @@ mod test {
         let res: Vec<Rule> = read_grammar(contents);
         assert_eq!("", format!("{:?}", res));
     }
+    #[test]
+    fn test_on_alephg(){
+        let mut file = File::open("./test/aleph/aleph.alg").unwrap();
+        let mut contents = String::new();
+        file.read_to_string(&mut contents).unwrap();
+        let res: Vec<Rule> = read_grammar(contents);
+        assert_eq!("", format!("{:?}", res));
+    }
 }
