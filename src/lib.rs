@@ -4,7 +4,7 @@ use regex::Regex;
 
 
 #[derive(Debug, PartialEq)]
-struct Rule {
+pub struct Rule {
     token_name: String,
     reprs: Vec<RuleRepr>
 }
@@ -54,8 +54,7 @@ fn line_to_token(line: &str) -> Option<String> {
 }
 
 
-
-fn read_grammar(file_content: String) -> Vec<Rule>{
+pub fn read_grammar(file_content: String) -> Vec<Rule>{
     let mut state= ParsingState::Token;
 
     let end_rule = Regex::new(r"^\s*$").unwrap();
