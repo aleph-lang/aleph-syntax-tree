@@ -27,6 +27,7 @@ fn line_to_rule(line:&str) -> Option<RuleRepr> {
     return match rule.captures(line) {
         Some(m) =>{
             let r_expr = m.get(1).unwrap().as_str().to_string();
+            //check whether a resulting node is named
             match m.get(4) {
                 Some(_) => {
                     let r_node = m.get(4).unwrap().as_str().to_string();
@@ -53,7 +54,7 @@ fn line_to_token(line: &str) -> Option<String> {
 }
 
 
-pub fn read_grammar(file_content: String) -> Rules{
+pub fn read_grammar(file_content: String) -> Rules {
     let mut state= ParsingState::Token;
 
     let end_rule = Regex::new(r"^\s*$").unwrap();
@@ -64,7 +65,7 @@ pub fn read_grammar(file_content: String) -> Rules{
     for line in file_content.as_str().split("\n") {
         match state.clone() {
             ParsingState::Token => {
-                current_token  = line_to_token(line);
+                current_token = line_to_token(line);
                 state = match current_token.clone() {
                     Some(token) => {
                         rules.insert(token, Vec::new());
@@ -75,10 +76,10 @@ pub fn read_grammar(file_content: String) -> Rules{
             },
             ParsingState::Rules => {
                 state = match end_rule.captures(line) {
-                    Some(_) =>  {
+                    Some(_) => {
                         ParsingState::Token
                     },
-                    None =>{
+                    None => {
                         match line_to_rule(line) {
                             Some(repr) => {
                                 rules.entry(current_token.clone().unwrap())
@@ -116,6 +117,7 @@ mod test {
             Some("expr".to_string())
             );
     }
+
     #[test]
     fn test_token_none() {
         let line = "      ";
@@ -124,6 +126,7 @@ mod test {
             None
             );
     }
+
     #[test]
     fn test_type_rule() {
         let line = "    | integer -> Integer($1)";
@@ -132,6 +135,7 @@ mod test {
             Some(RuleRepr{ repr: "integer".to_string(), node: "Integer".to_string(), args:"($1)".to_string()})
             );
     }
+
     #[test]
     fn test_expr_rule() {
         let line = "    | expr \"-\" expr -> Sub($1, $2)";
@@ -140,6 +144,7 @@ mod test {
             Some(RuleRepr{ repr: "expr \"-\" expr".to_string(), node: "Sub".to_string(), args:"($1, $2)".to_string()})
             );
     }
+
     #[test]
     fn test_regex_int() {
         let line = "    | r\"-{0,1}[0-9]+\" -> $1";
@@ -148,6 +153,7 @@ mod test {
             Some(RuleRepr{ repr: "r\"-{0,1}[0-9]+\"".to_string(), node: "".to_string(), args:"$1".to_string()})
             );
     }
+
     #[test]
     fn test_on_calc_file(){
         let mut file = File::open("./test/calc/calc.alg").unwrap();
@@ -156,6 +162,7 @@ mod test {
         let res: Rules = read_grammar(contents);
         assert_eq!("", format!("{:?}", res));
     }
+
     #[test]
     fn test_on_alephg(){
         let mut file = File::open("./test/aleph/aleph.alg").unwrap();
