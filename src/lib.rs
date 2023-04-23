@@ -1,16 +1,15 @@
 
 use regex::Regex;
+use std::collections::HashMap;
 
 
+pub mod syntax;
 
-#[derive(Debug, PartialEq)]
-pub struct Rule {
-    token_name: String,
-    reprs: Vec<RuleRepr>
-}
+pub type Token = String;
+pub type Rules = HashMap< Token, Vec<RuleRepr>>;
 
 #[derive(PartialEq, Debug, Clone)]
-struct RuleRepr {
+pub struct RuleRepr {
     repr: String,
     node: String,
     args: String
@@ -54,40 +53,36 @@ fn line_to_token(line: &str) -> Option<String> {
 }
 
 
-pub fn read_grammar(file_content: String) -> Vec<Rule>{
+pub fn read_grammar(file_content: String) -> Rules{
     let mut state= ParsingState::Token;
 
     let end_rule = Regex::new(r"^\s*$").unwrap();
 
-    let mut current_rules: Vec<Rule> = Vec::new();
-    let mut current_reprs: Vec<RuleRepr> =  Vec::new();
-    let mut current_token: Option<String> = None;
+    let mut rules: Rules = HashMap::new();
+    let mut current_token: Option<Token> = None;
 
     for line in file_content.as_str().split("\n") {
         match state.clone() {
             ParsingState::Token => {
                 current_token  = line_to_token(line);
-                state = match current_token {
-                    Some(_) => ParsingState::Rules,
+                state = match current_token.clone() {
+                    Some(token) => {
+                        rules.insert(token, Vec::new());
+                        ParsingState::Rules
+                    },
                     _ => ParsingState::Token
                 };
             },
             ParsingState::Rules => {
                 state = match end_rule.captures(line) {
                     Some(_) =>  {
-                        current_rules.push(
-                            Rule{
-                                token_name: current_token.clone().unwrap(),
-                                reprs: current_reprs.iter().map(|e|{e.clone()}).collect()
-                            }
-                            );
                         ParsingState::Token
                     },
                     None =>{
-                        let r_repr = line_to_rule(line);
-                        match r_repr {
+                        match line_to_rule(line) {
                             Some(repr) => {
-                                current_reprs.push(repr);
+                                rules.entry(current_token.clone().unwrap())
+                                    .and_modify(|reprs| {reprs.push(repr)});
                             },
                             None => {}
                         };
@@ -97,7 +92,7 @@ pub fn read_grammar(file_content: String) -> Vec<Rule>{
             }
         }
     }
-    current_rules
+    rules
 }
 
 
@@ -108,7 +103,7 @@ mod test {
         line_to_token,
         read_grammar,
         RuleRepr,
-        Rule
+        Rules
     };
     use std::fs::File;
     use std::io::Read;
@@ -158,7 +153,7 @@ mod test {
         let mut file = File::open("./test/calc/calc.alg").unwrap();
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
-        let res: Vec<Rule> = read_grammar(contents);
+        let res: Rules = read_grammar(contents);
         assert_eq!("", format!("{:?}", res));
     }
     #[test]
@@ -166,7 +161,7 @@ mod test {
         let mut file = File::open("./test/aleph/aleph.alg").unwrap();
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
-        let res: Vec<Rule> = read_grammar(contents);
+        let res: Rules = read_grammar(contents);
         assert_eq!("", format!("{:?}", res));
     }
 }
