@@ -1,9 +1,12 @@
+use strum_macros::EnumString;
 use serde::{Deserialize, Serialize};
-#[derive(Debug, Serialize, Deserialize, Clone)]
 
+#[derive(Default, PartialEq, Debug, Serialize, Deserialize, Clone, EnumString)]
 #[serde(tag="type")]
 pub enum AlephTree {
+    #[default]
     Unit,
+    #[serde(alias="Integer")]
     Int{value:String},
     Float{value:String},
     Bool{value:String},
