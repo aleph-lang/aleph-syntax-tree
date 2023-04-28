@@ -6,11 +6,14 @@ use serde::{Deserialize, Serialize};
 pub enum AlephTree {
     #[default]
     Unit,
+    Ellipsis,
     #[serde(alias="Integer")]
     Int{value:String},
     Float{value:String},
     Bool{value:String},
     String{value:String},
+    Bytes{elems: Vec<u8>},
+    Complex{real: String, imag: String},
     Tuple {
         elems: Vec<Box<AlephTree>>
     },
