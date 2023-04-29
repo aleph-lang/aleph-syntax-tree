@@ -148,7 +148,7 @@ pub enum AlephTree {
     },
     #[serde(alias="Import")]
     Iprt{
-       name: String 
+        name: String 
     },
     #[serde(alias="Class")]
     Clss{
@@ -156,15 +156,19 @@ pub enum AlephTree {
         #[serde(alias="attributList")]
         attribute_list: Vec<String>,
         body: Box<AlephTree>
-   },
-   #[serde(alias="Comment")]
-   Comment{
-       value: String 
-   },
-   #[serde(alias="CommentMulti")]
-   CommentMulti{
-       value: String 
-   },
+    },
+    #[serde(alias="Return")]
+    Return{
+        value: Box<AlephTree>
+    },
+    #[serde(alias="Comment")]
+    Comment{
+        value: String 
+    },
+    #[serde(alias="CommentMulti")]
+    CommentMulti{
+        value: String 
+    },
 }
 
 impl FromIterator<AlephTree> for Vec<Box<AlephTree>> {
