@@ -71,6 +71,10 @@ pub enum AlephTree {
         expr1: Box<AlephTree>,
         expr2: Box<AlephTree>,
     },
+    In{
+        expr1: Box<AlephTree>,
+        expr2: Box<AlephTree>,
+    },
     If{
         condition: Box<AlephTree>,
         then: Box<AlephTree>,
