@@ -6,6 +6,8 @@ use serde::{Deserialize, Serialize};
 pub enum AlephTree {
     #[default]
     Unit,
+    Break,
+    Continue,
     Ellipsis,
     #[serde(alias="Integer")]
     Int{value:String},
@@ -173,6 +175,10 @@ pub enum AlephTree {
     CommentMulti{
         value: String 
     },
+    Assert {
+        condition: Box<AlephTree>,
+        message: Box<AlephTree>
+    }
 }
 
 impl FromIterator<AlephTree> for Vec<Box<AlephTree>> {
