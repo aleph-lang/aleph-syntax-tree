@@ -2,8 +2,8 @@
 use regex::Regex;
 use std::collections::HashMap;
 
-
 pub mod syntax;
+pub mod gen;
 
 pub type Token = String;
 pub type Rules = HashMap< Token, Vec<RuleRepr>>;
