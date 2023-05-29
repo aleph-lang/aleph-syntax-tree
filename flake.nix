@@ -11,7 +11,10 @@
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [cargo2nix.overlays.default (import rust-overlay)];
+          overlays = [
+            cargo2nix.overlays.default
+            (import rust-overlay)
+          ];
         };
 
         rustVersion = pkgs.rust-bin.stable.latest.default;
@@ -28,12 +31,12 @@
         };
 
       in {
-        devShell = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            (rustVersion.override { extensions = [ "rust-src" ]; }) # for rust
-            cargo-nextest
+        devShells =  {
+        default = rustPkgs.workspaceShell {
+          nativeBuildInputs = with pkgs; [
             pkg-config
           ];
         };
+      };
     });
 }
