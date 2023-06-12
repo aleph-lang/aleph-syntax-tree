@@ -202,7 +202,16 @@ impl fmt::Display for AlephTree {
             AlephTree::Int { value } => write!(f, "Int({})", value),
             AlephTree::Float { value } => write!(f, "Float({})", value),
             AlephTree::Bool { value } => write!(f, "Bool({})", value),
-            AlephTree::String { value } => write!(f, "{}", value),
+            AlephTree::String { value } => write!(f, "String({})", value),
+            _ => todo!(),
+        }
+    }
+}
+
+impl AlephTree {
+   pub fn to_string_value(&self) -> String {
+        match self {
+            AlephTree::String { value } => value.to_string(),
             _ => todo!(),
         }
     }
