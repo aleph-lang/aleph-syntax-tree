@@ -1,3 +1,4 @@
+use std::fmt;
 use strum_macros::EnumString;
 use serde::{Deserialize, Serialize};
 
@@ -188,5 +189,21 @@ impl FromIterator<AlephTree> for Vec<Box<AlephTree>> {
             result.push(Box::new(node));
         }
         result
+    }
+}
+
+impl fmt::Display for AlephTree {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            AlephTree::Unit => write!(f, "Unit"),
+            AlephTree::Break => write!(f, "Break"),
+            AlephTree::Continue => write!(f, "Continue"),
+            AlephTree::Ellipsis => write!(f, "Ellipsis"),
+            AlephTree::Int { value } => write!(f, "Int({})", value),
+            AlephTree::Float { value } => write!(f, "Float({})", value),
+            AlephTree::Bool { value } => write!(f, "Bool({})", value),
+            AlephTree::String { value } => write!(f, "{}", value),
+            _ => todo!(),
+        }
     }
 }
