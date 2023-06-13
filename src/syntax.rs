@@ -195,15 +195,7 @@ impl FromIterator<AlephTree> for Vec<Box<AlephTree>> {
 impl fmt::Display for AlephTree {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            AlephTree::Unit => write!(f, "Unit"),
-            AlephTree::Break => write!(f, "Break"),
-            AlephTree::Continue => write!(f, "Continue"),
-            AlephTree::Ellipsis => write!(f, "Ellipsis"),
-            AlephTree::Int { value } => write!(f, "Int({})", value),
-            AlephTree::Float { value } => write!(f, "Float({})", value),
-            AlephTree::Bool { value } => write!(f, "Bool({})", value),
-            AlephTree::String { value } => write!(f, "String({})", value),
-            _ => todo!(),
+            e => write!(f, "{:?}", e),
         }
     }
 }
@@ -211,7 +203,14 @@ impl fmt::Display for AlephTree {
 impl AlephTree {
    pub fn to_string_value(&self) -> String {
         match self {
+            AlephTree::Bool { value } => value.to_string(),
+            AlephTree::Int { value } => value.to_string(),
+            AlephTree::Float { value } => value.to_string(),
             AlephTree::String { value } => value.to_string(),
+            AlephTree::Bytes { elems } => match std::str::from_utf8(elems) {
+                Ok(s) => s.to_string(),
+                Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+            }
             _ => todo!(),
         }
     }
