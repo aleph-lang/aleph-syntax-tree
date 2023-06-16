@@ -14,7 +14,7 @@ pub trait Parser {
 }
 
 /// Transformer : this trait should be implemented by all transformers
-trait Transform {
+pub trait Transform {
     /// transform
     /// #Arguments
     /// `ast` - AlephTree
@@ -25,7 +25,7 @@ trait Transform {
 }
 
 /// Generator : this trait should be implemented by all generators
-trait Gen {
+pub trait Gen {
     /// generate
     /// #Arguments
     /// `ast` - Alephtree
