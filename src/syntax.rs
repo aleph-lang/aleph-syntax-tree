@@ -182,7 +182,7 @@ pub enum AlephTree {
     }
 }
 
-pub fn json_parser(source: String) -> AlephTree {
+pub fn json_parse(source: String) -> AlephTree {
     serde_json::from_str(&source).unwrap()
 }
 
