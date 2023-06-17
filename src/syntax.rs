@@ -182,6 +182,14 @@ pub enum AlephTree {
     }
 }
 
+pub fn json_parser(source: String) -> AlephTree {
+    serde_json::from_str(&source).unwrap()
+}
+
+pub fn to_json(ast: AlephTree) -> String {
+    serde_json::to_string_pretty(&ast).unwrap()
+}
+
 impl FromIterator<AlephTree> for Vec<Box<AlephTree>> {
     fn from_iter<I: IntoIterator<Item=AlephTree>>(iter : I) -> Self {
         let mut result: Vec<Box<AlephTree>> = Vec::new();

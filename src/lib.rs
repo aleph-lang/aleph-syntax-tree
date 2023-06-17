@@ -2,39 +2,6 @@ use crate::syntax::AlephTree as at;
 
 pub mod syntax;
 
-/// Parser : this trait should be implemented by all parser
-pub trait Parser {
-    /// parse
-    /// #Arguments
-    /// `source` - String to parse
-    ///
-    /// # Return
-    /// This function return an AlephTree
-    fn parse(&self, source: String) -> at;
-}
-
-/// Transformer : this trait should be implemented by all transformers
-pub trait Transform {
-    /// transform
-    /// #Arguments
-    /// `ast` - AlephTree
-    ///
-    /// # Return
-    /// This function return an AlephTree
-    fn transform(&self, ast: at) -> at ;
-}
-
-/// Generator : this trait should be implemented by all generators
-pub trait Gen {
-    /// generate
-    /// #Arguments
-    /// `ast` - Alephtree
-    ///
-    /// # Return
-    /// This function return source code as String
-    fn generate(&self, ast: at) -> String ;
-}
-
 pub fn gen_list_expr_sep(ast_list: Vec<Box<at>>, f: fn(at, i64) -> String, sep: &str) -> String {
     format!("{}", ast_list.into_iter().map(|e| f(*e, 0)).collect::<Vec<String>>().join(sep))
 }
