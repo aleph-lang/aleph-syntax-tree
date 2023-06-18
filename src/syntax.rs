@@ -216,6 +216,7 @@ impl AlephTree {
             AlephTree::Int { value } => value.to_string(),
             AlephTree::Float { value } => value.to_string(),
             AlephTree::String { value } => value.to_string(),
+            AlephTree::Ident { value } => value.to_string(),
             AlephTree::Bytes { elems } => match std::str::from_utf8(elems) {
                 Ok(s) => s.to_string(),
                 Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
