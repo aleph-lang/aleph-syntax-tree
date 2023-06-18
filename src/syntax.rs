@@ -15,6 +15,7 @@ pub enum AlephTree {
     Float{value:String},
     Bool{value:String},
     String{value:String},
+    Ident{value:String},
     Bytes{elems: Vec<u8>},
     Complex{real: String, imag: String},
     Tuple {
