@@ -221,7 +221,10 @@ impl AlephTree {
                 Ok(s) => s.to_string(),
                 Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
             }
-            _ => panic!("Can't evaluate to_string_value : {}", self),
+            _ => {
+                println!("Can't evaluate to_string_value : {}", self);
+                panic!()
+            }
         }
     }
 }
