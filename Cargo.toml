@@ -2,7 +2,7 @@
 name = "aleph-syntax-tree"
 version = "0.1.0"
 edition = "2021"
-license-file="LICENCE"
+license-file="LICENSE"
 repository="https://github.com/aleph-lang/aleph-syntax-tree"
 
 [dependencies]
