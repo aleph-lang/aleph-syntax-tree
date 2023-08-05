@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 license-file="LICENSE"
 repository="https://github.com/aleph-lang/aleph-syntax-tree"
+description="Aleph Syntax Tree structure."
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
