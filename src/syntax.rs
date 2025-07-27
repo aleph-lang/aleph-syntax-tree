@@ -156,7 +156,7 @@ pub enum AlephTree {
     },
     #[serde(alias="Import")]
     Iprt{
-        name: String 
+        name: String
     },
     #[serde(alias="Class")]
     Clss{
@@ -171,15 +171,323 @@ pub enum AlephTree {
     },
     #[serde(alias="Comment")]
     Comment{
-        value: String 
+        value: String
     },
     #[serde(alias="CommentMulti")]
     CommentMulti{
-        value: String 
+        value: String
     },
     Assert {
         condition: Box<AlephTree>,
         message: Box<AlephTree>
+    },
+
+    CobolProgram {
+        #[serde(alias="programId")]
+        program_id: String,
+        #[serde(alias="environmentDiv")]
+        environment_div: Option<Box<AlephTree>>,
+        #[serde(alias="dataDiv")]
+        data_div: Option<Box<AlephTree>>,
+        #[serde(alias="procedureDiv")]
+        procedure_div: Box<AlephTree>
+    },
+
+    EnvironmentDivision {
+        #[serde(alias="configSection")]
+        config_section: Option<Box<AlephTree>>,
+        #[serde(alias="ioControlSection")]
+        io_control_section: Option<Box<AlephTree>>
+    },
+
+    DataDivision {
+        #[serde(alias="fileSection")]
+        file_section: Option<Box<AlephTree>>,
+        #[serde(alias="workingStorageSection")]
+        working_storage_section: Option<Box<AlephTree>>,
+        #[serde(alias="linkageSection")]
+        linkage_section: Option<Box<AlephTree>>
+    },
+
+    ProcedureDivision {
+        #[serde(alias="usingClause")]
+        using_clause: Option<Vec<String>>,
+        statements: Vec<Box<AlephTree>>
+    },
+
+    PicClause {
+        #[serde(alias="dataName")]
+        data_name: String,
+        #[serde(alias="levelNumber")]
+        level_number: String,
+        picture: String,
+        #[serde(alias="initialValue")]
+        initial_value: Option<Box<AlephTree>>,
+        #[serde(alias="occursClause")]
+        occurs_clause: Option<String>,
+        usage: Option<String>
+    },
+
+    GroupItem {
+        #[serde(alias="dataName")]
+        data_name: String,
+        #[serde(alias="levelNumber")]
+        level_number: String,
+        #[serde(alias="subItems")]
+        sub_items: Vec<Box<AlephTree>>
+    },
+
+    Redefines {
+        #[serde(alias="dataName")]
+        data_name: String,
+        #[serde(alias="levelNumber")]
+        level_number: String,
+        #[serde(alias="redefinedItem")]
+        redefined_item: String,
+        picture: Option<String>
+    },
+
+    FileDescription {
+        #[serde(alias="fileName")]
+        file_name: String,
+        #[serde(alias="recordDescription")]
+        record_description: Vec<Box<AlephTree>>,
+        #[serde(alias="blockContains")]
+        block_contains: Option<String>,
+        #[serde(alias="recordContains")]
+        record_contains: Option<String>
+    },
+
+    SelectStatement {
+        #[serde(alias="fileName")]
+        file_name: String,
+        #[serde(alias="assignTo")]
+        assign_to: String,
+        #[serde(alias="accessMode")]
+        access_mode: Option<String>,
+        #[serde(alias="organizationMode")]
+        organization_mode: Option<String>
+    },
+
+    Move {
+        source: Box<AlephTree>,
+        #[serde(alias="targetList")]
+        target_list: Vec<Box<AlephTree>>
+    },
+
+    Compute {
+        target: Box<AlephTree>,
+        expression: Box<AlephTree>,
+        #[serde(alias="onSizeError")]
+        on_size_error: Option<Box<AlephTree>>
+    },
+
+    Perform {
+        #[serde(alias="targetParagraph")]
+        target_paragraph: Option<String>,
+        #[serde(alias="fromParagraph")]
+        from_paragraph: Option<String>,
+        #[serde(alias="throughParagraph")]
+        through_paragraph: Option<String>,
+        #[serde(alias="timesClause")]
+        times_clause: Option<Box<AlephTree>>,
+        #[serde(alias="untilClause")]
+        until_clause: Option<Box<AlephTree>>,
+        #[serde(alias="varyingClause")]
+        varying_clause: Option<Box<AlephTree>>,
+        #[serde(alias="inlineStatements")]
+        inline_statements: Option<Vec<Box<AlephTree>>>
+    },
+
+    Accept {
+        target: Box<AlephTree>,
+        #[serde(alias="fromDevice")]
+        from_device: Option<String>
+    },
+
+    Display {
+        #[serde(alias="itemList")]
+        item_list: Vec<Box<AlephTree>>,
+        #[serde(alias="uponDevice")]
+        upon_device: Option<String>
+    },
+
+    Open {
+        mode: String,
+        #[serde(alias="fileList")]
+        file_list: Vec<String>
+    },
+
+    Close {
+        #[serde(alias="fileList")]
+        file_list: Vec<String>
+    },
+
+    Read {
+        #[serde(alias="fileName")]
+        file_name: String,
+        #[serde(alias="intoClause")]
+        into_clause: Option<Box<AlephTree>>,
+        #[serde(alias="keyClause")]
+        key_clause: Option<Box<AlephTree>>,
+        #[serde(alias="atEndClause")]
+        at_end_clause: Option<Box<AlephTree>>,
+        #[serde(alias="notAtEndClause")]
+        not_at_end_clause: Option<Box<AlephTree>>
+    },
+
+    Write {
+        #[serde(alias="recordName")]
+        record_name: String,
+        #[serde(alias="fromClause")]
+        from_clause: Option<Box<AlephTree>>,
+        #[serde(alias="advancingClause")]
+        advancing_clause: Option<String>
+    },
+
+    GoTo {
+        #[serde(alias="targetParagraph")]
+        target_paragraph: String,
+        #[serde(alias="dependingOn")]
+        depending_on: Option<Box<AlephTree>>
+    },
+
+    Stop {
+        #[serde(alias="stopType")]
+        stop_type: String
+    },
+
+    Exit,
+
+    Paragraph {
+        name: String,
+        statements: Vec<Box<AlephTree>>
+    },
+
+    Section {
+        name: String,
+        paragraphs: Vec<Box<AlephTree>>
+    },
+
+    Evaluate {
+        #[serde(alias="selectionSubject")]
+        selection_subject: Box<AlephTree>,
+        #[serde(alias="whenClauses")]
+        when_clauses: Vec<Box<AlephTree>>,
+        #[serde(alias="whenOther")]
+        when_other: Option<Box<AlephTree>>
+    },
+
+    WhenClause {
+        #[serde(alias="selectionObject")]
+        selection_object: Box<AlephTree>,
+        statements: Vec<Box<AlephTree>>
+    },
+
+    Inspect {
+        #[serde(alias="inspectingItem")]
+        inspecting_item: Box<AlephTree>,
+        #[serde(alias="tallyingClause")]
+        tallying_clause: Option<Box<AlephTree>>,
+        #[serde(alias="replacingClause")]
+        replacing_clause: Option<Box<AlephTree>>
+    },
+
+    StringStmt {
+        #[serde(alias="sourceItems")]
+        source_items: Vec<Box<AlephTree>>,
+        #[serde(alias="delimitedBy")]
+        delimited_by: Box<AlephTree>,
+        #[serde(alias="intoItem")]
+        into_item: Box<AlephTree>,
+        #[serde(alias="withPointer")]
+        with_pointer: Option<Box<AlephTree>>,
+        #[serde(alias="onOverflow")]
+        on_overflow: Option<Box<AlephTree>>
+    },
+
+    Unstring {
+        #[serde(alias="sourceItem")]
+        source_item: Box<AlephTree>,
+        #[serde(alias="delimitedBy")]
+        delimited_by: Box<AlephTree>,
+        #[serde(alias="intoItems")]
+        into_items: Vec<Box<AlephTree>>,
+        #[serde(alias="withPointer")]
+        with_pointer: Option<Box<AlephTree>>,
+        #[serde(alias="onOverflow")]
+        on_overflow: Option<Box<AlephTree>>
+    },
+
+    OnSizeError {
+        statements: Vec<Box<AlephTree>>
+    },
+
+    NotOnSizeError {
+        statements: Vec<Box<AlephTree>>
+    },
+
+    Call {
+        #[serde(alias="programName")]
+        program_name: Box<AlephTree>,
+        #[serde(alias="usingParameters")]
+        using_parameters: Option<Vec<Box<AlephTree>>>,
+        #[serde(alias="givingParameter")]
+        giving_parameter: Option<Box<AlephTree>>,
+        #[serde(alias="onException")]
+        on_exception: Option<Box<AlephTree>>
+    },
+
+    QualifiedName {
+        #[serde(alias="dataName")]
+        data_name: String,
+        #[serde(alias="qualifierList")]
+        qualifier_list: Vec<String>
+    },
+
+    Subscript {
+        #[serde(alias="dataName")]
+        data_name: String,
+        #[serde(alias="subscriptList")]
+        subscript_list: Vec<Box<AlephTree>>
+    },
+
+    Figurative {
+        #[serde(alias="figurativeType")]
+        figurative_type: String
+    },
+
+    ClassCondition {
+        #[serde(alias="dataItem")]
+        data_item: Box<AlephTree>,
+        #[serde(alias="className")]
+        class_name: String
+    },
+
+    SignCondition {
+        #[serde(alias="dataItem")]
+        data_item: Box<AlephTree>,
+        sign: String
+    },
+
+    OccursClause {
+        #[serde(alias="minOccurs")]
+        min_occurs: Option<String>,
+        #[serde(alias="maxOccurs")]
+        max_occurs: String,
+        #[serde(alias="dependingOn")]
+        depending_on: Option<String>,
+        #[serde(alias="indexedBy")]
+        indexed_by: Option<Vec<String>>
+    },
+
+    HexLiteral {
+        value: String
+    },
+
+    UsageClause {
+        #[serde(alias="usageType")]
+        usage_type: String
     }
 }
 
@@ -220,7 +528,9 @@ impl AlephTree {
             AlephTree::Bytes { elems } => match std::str::from_utf8(elems) {
                 Ok(s) => s.to_string(),
                 Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-            }
+            },
+            AlephTree::Figurative { figurative_type } => figurative_type.to_string(),
+            AlephTree::HexLiteral { value } => value.to_string(),
             _ => {
                 println!("Can't evaluate to_string_value : {}", self);
                 panic!()
