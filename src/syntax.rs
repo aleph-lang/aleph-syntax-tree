@@ -488,6 +488,249 @@ pub enum AlephTree {
     UsageClause {
         #[serde(alias="usageType")]
         usage_type: String
+    },
+
+    // === Forth-specific nodes ===
+
+    // Forth word definition
+    ForthDef {
+        name: String,
+        body: Vec<Box<AlephTree>>,
+        #[serde(alias="isImmediate")]
+        is_immediate: bool,
+    },
+
+    // Forth constant
+    ForthConst {
+        name: String,
+        value: Box<AlephTree>,
+    },
+
+    // Forth variable
+    ForthVar {
+        name: String,
+    },
+
+    // Forth CREATE...DOES>
+    ForthCreate {
+        name: String,
+        allot_size: Option<Box<AlephTree>>,
+        does_body: Option<Vec<Box<AlephTree>>>,
+    },
+
+    // Stack operations
+    ForthDup,      // DUP ( n -- n n )
+    ForthDrop,     // DROP ( n -- )
+    ForthSwap,     // SWAP ( n1 n2 -- n2 n1 )
+    ForthOver,     // OVER ( n1 n2 -- n1 n2 n1 )
+    ForthRot,      // ROT ( n1 n2 n3 -- n2 n3 n1 )
+    ForthMinusRot, // -ROT ( n1 n2 n3 -- n3 n1 n2 )
+    ForthNip,      // NIP ( n1 n2 -- n2 )
+    ForthTuck,     // TUCK ( n1 n2 -- n2 n1 n2 )
+    ForthPick {    // PICK ( ... n -- ... x )
+        depth: Box<AlephTree>,
+    },
+    ForthRoll {    // ROLL ( ... n -- ... )
+        depth: Box<AlephTree>,
+    },
+
+    // Double stack operations
+    ForthTwoDup,   // 2DUP
+    ForthTwoDrop,  // 2DROP
+    ForthTwoSwap,  // 2SWAP
+    ForthTwoOver,  // 2OVER
+
+    // Return stack operations
+    ForthToR,      // >R ( n -- ) ( R: -- n )
+    ForthFromR,    // R> ( -- n ) ( R: n -- )
+    ForthRFetch,   // R@ ( -- n ) ( R: n -- n )
+
+    // Arithmetic operations (reuse existing Add, Sub, Mul, Div when possible)
+    ForthMod,      // MOD
+    ForthDivMod,   // /MOD
+    ForthMulDiv,   // */
+    ForthMulDivMod,// */MOD
+    ForthOnePlus,  // 1+
+    ForthOneMinus, // 1-
+    ForthTwoMul,   // 2*
+    ForthTwoDiv,   // 2/
+    ForthAbs,      // ABS
+    ForthNegate,   // NEGATE (can reuse Neg)
+    ForthMin,      // MIN
+    ForthMax,      // MAX
+
+    // Bitwise operations (can reuse And, Or when possible)
+    ForthXor,      // XOR
+    ForthInvert,   // INVERT
+    ForthLShift,   // LSHIFT
+    ForthRShift,   // RSHIFT
+
+    // Comparison operations (can reuse Eq, LE when possible)
+    ForthNotEq,    // <>
+    ForthLessThan, // <
+    ForthGreater,  // >
+    ForthGreaterEq,// >=
+    ForthZeroEq,   // 0=
+    ForthZeroNotEq,// 0<>
+    ForthZeroLess, // 0<
+    ForthZeroGreater, // 0>
+
+    // Memory operations
+    ForthFetch,    // @ ( addr -- n )
+    ForthStore,    // ! ( n addr -- )
+    ForthPlusStore,// +! ( n addr -- )
+    ForthCFetch,   // C@ ( addr -- c )
+    ForthCStore,   // C! ( c addr -- )
+    ForthCells,    // CELLS ( n -- n*cell_size )
+    ForthAllot,    // ALLOT ( n -- )
+    ForthComma,    // , ( n -- )
+    ForthCComma,   // C, ( c -- )
+    ForthHere,     // HERE ( -- addr )
+
+    // I/O operations
+    ForthDot,      // . ( n -- )
+    ForthEmit,     // EMIT ( c -- )
+    ForthCR,       // CR ( -- )
+    ForthSpace,    // SPACE ( -- )
+    ForthSpaces {  // SPACES ( n -- )
+        count: Box<AlephTree>,
+    },
+    ForthType {    // TYPE ( addr u -- )
+        addr: Box<AlephTree>,
+        count: Box<AlephTree>,
+    },
+    ForthKey,      // KEY ( -- c )
+    ForthAccept {  // ACCEPT ( addr +n1 -- +n2 )
+        addr: Box<AlephTree>,
+        max_len: Box<AlephTree>,
+    },
+    ForthDotQuote {// ." text"
+        text: String
+    },
+    ForthSQuote {  // S" text"
+        text: String
+    },
+
+    // Control structures
+    ForthBeginUntil {  // BEGIN...UNTIL
+        body: Vec<Box<AlephTree>>,
+        condition: Box<AlephTree>,
+    },
+
+    ForthBeginWhileRepeat {  // BEGIN...WHILE...REPEAT
+        condition: Box<AlephTree>,
+        while_body: Vec<Box<AlephTree>>,
+        repeat_body: Vec<Box<AlephTree>>,
+    },
+
+    ForthBeginAgain {  // BEGIN...AGAIN (infinite loop)
+        body: Vec<Box<AlephTree>>,
+    },
+
+    ForthDoLoop {      // DO...LOOP
+        body: Vec<Box<AlephTree>>,
+    },
+
+    ForthDoPlusLoop {  // DO...+LOOP
+        body: Vec<Box<AlephTree>>,
+        increment: Box<AlephTree>,
+    },
+
+    ForthLeave,        // LEAVE
+
+    ForthCase {        // CASE...ENDCASE
+        #[serde(alias="whenClauses")]
+        when_clauses: Vec<Box<AlephTree>>,
+        default: Option<Vec<Box<AlephTree>>>,
+    },
+
+    ForthOf {          // OF...ENDOF
+        value: Box<AlephTree>,
+        body: Vec<Box<AlephTree>>,
+    },
+
+    // Loop index access
+    ForthI,            // I (current loop index)
+    ForthJ,            // J (outer loop index)
+
+    // Execution tokens
+    ForthTick {        // ' (tick)
+        word: String,
+    },
+
+    ForthBracketTick { // [']
+        word: String,
+    },
+
+    ForthExecute {     // EXECUTE ( xt -- )
+        xt: Box<AlephTree>,
+    },
+
+    // Compilation words
+    ForthLiteral {     // LITERAL
+        value: Box<AlephTree>,
+    },
+
+    ForthPostpone {    // POSTPONE
+        word: String,
+    },
+
+    ForthBracket,      // [ (enter interpretation mode)
+    ForthBracketClose, // ] (enter compilation mode)
+
+    ForthImmediate,    // IMMEDIATE
+
+    ForthRecursive,    // RECURSIVE
+
+    // Dictionary manipulation
+    ForthForget {      // FORGET
+        word: String,
+    },
+
+    ForthWords,        // WORDS (list all words)
+
+    ForthSee {         // SEE (decompile word)
+        word: String,
+    },
+
+    // String operations
+    ForthEvaluate {    // EVALUATE ( addr u -- )
+        addr: Box<AlephTree>,
+        count: Box<AlephTree>,
+    },
+
+    // Conversion operations
+    ForthSToD,         // S>D (single to double)
+    ForthDToS,         // D>S (double to single)
+
+    // Program control
+    ForthQuit,         // QUIT (outer interpreter loop)
+    ForthAbort,        // ABORT
+    ForthAbortQuote {  // ABORT" message"
+        message: String,
+    },
+
+    // Comment (Forth-style)
+    ForthComment {     // ( comment )
+        text: String,
+    },
+
+    ForthLineComment { // \ comment
+        text: String,
+    },
+
+    // Hexadecimal number
+    ForthHex {         // 0x prefix or HEX mode
+        value: String,
+    },
+
+    // Program structure
+    ForthProgram {
+        definitions: Vec<Box<AlephTree>>,
+    },
+
+    ForthSequence {    // Sequence of Forth words
+        words: Vec<Box<AlephTree>>,
     }
 }
 
@@ -518,7 +761,7 @@ impl fmt::Display for AlephTree {
 }
 
 impl AlephTree {
-   pub fn to_string_value(&self) -> String {
+    pub fn to_string_value(&self) -> String {
         match self {
             AlephTree::Bool { value } => value.to_string(),
             AlephTree::Int { value } => value.to_string(),
