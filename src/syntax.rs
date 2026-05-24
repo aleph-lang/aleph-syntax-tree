@@ -899,6 +899,43 @@ pub enum AlephTree {
     Unsafe{
         body: Box<AlephTree>
     },
+
+    // ── Cognitive Layer ────────────────────────────────────────────────────
+    // Intentional primitives: the program *reasons* instead of *executes*.
+    // An intention block — like `fun` but driven by purpose, not procedure.
+    Intend{
+        name: String,
+        params: Vec<Box<AlephTree>>,
+        body: Box<AlephTree>
+    },
+
+    // Proposes a candidate from a context; optionally constrained by options.
+    Suggest{
+        var: String,
+        context: Box<AlephTree>,
+        options: Vec<Box<AlephTree>>,
+        fallback: Option<Box<AlephTree>>
+    },
+
+    // Executes an intention and captures its observable effect.
+    Act{
+        intention: Box<AlephTree>,
+        effect: Option<Box<AlephTree>>
+    },
+
+    // Persists a value in cognitive memory; ttl=None means permanent.
+    Remember{
+        key: Box<AlephTree>,
+        value: Box<AlephTree>,
+        ttl: Option<Box<AlephTree>>
+    },
+
+    // Reads a value from the environment matching an optional pattern.
+    Perceive{
+        source: Box<AlephTree>,
+        pattern: Option<Box<AlephTree>>,
+        var: Option<String>
+    },
 }
 
 pub fn json_parse(source: String) -> AlephTree {
