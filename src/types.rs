@@ -18,6 +18,12 @@ pub enum Type {
     /// Raw byte sequence.
     Bytes,
     /// The single-valued "nothing" type.
+    // `#[default]` here exists only so `AlephTree`'s `strum::EnumString`
+    // derive can build a placeholder `Type` value for its `FromStr` path
+    // (which requires every struct-like variant's fields to implement
+    // `Default`). It is not a sentinel for "no type annotation" — use
+    // `Option<Type>` for that. Don't let `Type::default()` leak into
+    // real type-checking logic.
     #[default]
     Unit,
     /// Homogeneous list of `elem`.

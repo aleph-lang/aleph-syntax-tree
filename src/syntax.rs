@@ -940,27 +940,27 @@ pub enum AlephTree {
     },
 
     // ── Type & Effect Layer (Aleph-Next) ────────────────────────────────────
-    // Attaches a static type to a subtree — e.g. a function parameter or a
-    // declared return position. Front-ends that don't type-check (every
-    // parser that predates Aleph-Next) simply never emit this node, and
-    // existing generators never need to handle it because they never
-    // receive a tree that contains one.
+    /// Attaches a static type to a subtree — e.g. a function parameter or a
+    /// declared return position. Front-ends that don't type-check (every
+    /// parser that predates Aleph-Next) simply never emit this node, and
+    /// existing generators never need to handle it because they never
+    /// receive a tree that contains one.
     Typed{
         inner: Box<AlephTree>,
         ty: Type
     },
 
-    // Declares a sum type: `type Shape = Circle(radius: Float) | Rect(w: Float, h: Float)`.
-    // Reuses `types::Variant` — the same shape `Type::Sum` uses — rather
-    // than a raw tuple, for the same reasons (named field access, cleaner
-    // wire format).
+    /// Declares a sum type: `type Shape = Circle(radius: Float) | Rect(w: Float, h: Float)`.
+    /// Reuses `types::Variant` — the same shape `Type::Sum` uses — rather
+    /// than a raw tuple, for the same reasons (named field access, cleaner
+    /// wire format).
     TypeDef{
         name: String,
         variants: Vec<crate::types::Variant>
     },
 
-    // Declares the effect row of a function body (`pure`, `io`, `net`,
-    // `mut`, `act`). See `crate::effects::Effect`.
+    /// Declares the effect row of a function body (`pure`, `io`, `net`,
+    /// `mut`, `act`). See `crate::effects::Effect`.
     WithEffects{
         inner: Box<AlephTree>,
         effects: EffectSet
@@ -1019,7 +1019,7 @@ impl AlephTree {
 mod tests {
     use super::*;
     use crate::effects::Effect;
-    use crate::types::Type;
+    use crate::types::{Type, Variant};
 
     #[test]
     fn typed_node_round_trips_through_json() {
@@ -1033,8 +1033,19 @@ mod tests {
     }
 
     #[test]
+    fn typed_node_wire_format_is_locked() {
+        let node = AlephTree::Typed {
+            inner: Box::new(AlephTree::Ident { value: "n".to_string() }),
+            ty: Type::Int,
+        };
+        assert_eq!(
+            to_json(node),
+            "{\n  \"type\": \"Typed\",\n  \"inner\": {\n    \"type\": \"Ident\",\n    \"value\": \"n\"\n  },\n  \"ty\": {\n    \"type\": \"Int\"\n  }\n}"
+        );
+    }
+
+    #[test]
     fn type_def_round_trips_through_json() {
-        use crate::types::Variant;
         let node = AlephTree::TypeDef {
             name: "Shape".to_string(),
             variants: vec![
@@ -1055,7 +1066,7 @@ mod tests {
                 fun: Box::new(AlephTree::Ident { value: "print".to_string() }),
                 param_list: Vec::new(),
             }),
-            effects: crate::effects::EffectSet::from([Effect::Io]),
+            effects: crate::effects::EffectSet::from([Effect::Io, Effect::Net]),
         };
         let json = to_json(node.clone());
         let back = json_parse(json);
