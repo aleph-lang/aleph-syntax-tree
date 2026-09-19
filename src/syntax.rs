@@ -1,6 +1,23 @@
 use std::fmt;
 use strum_macros::EnumString;
 use serde::{Deserialize, Serialize};
+use crate::types::Type;
+use crate::effects::EffectSet;
+
+// `AlephTree` derives `EnumString` (strum), whose `FromStr` impl parses a
+// tag name back into a variant by constructing every struct-like variant's
+// fields via `Default::default()` (the field values are irrelevant to that
+// parse — only the tag matters). That means every field type across every
+// variant must implement `Default`, including `Typed`'s `ty: Type`.
+// `types::Type` intentionally doesn't derive `Default` itself (this crate's
+// Task 3 scope is `src/syntax.rs` only), so it's provided here instead —
+// legal because `Type` is a local type, even though this `impl` block
+// lives outside its defining module.
+impl Default for Type {
+    fn default() -> Self {
+        Type::Unit
+    }
+}
 
 #[derive(Default, PartialEq, Debug, Serialize, Deserialize, Clone, EnumString)]
 #[serde(tag="type")]
@@ -936,6 +953,33 @@ pub enum AlephTree {
         pattern: Option<Box<AlephTree>>,
         var: Option<String>
     },
+
+    // ── Type & Effect Layer (Aleph-Next) ────────────────────────────────────
+    // Attaches a static type to a subtree — e.g. a function parameter or a
+    // declared return position. Front-ends that don't type-check (every
+    // parser that predates Aleph-Next) simply never emit this node, and
+    // existing generators never need to handle it because they never
+    // receive a tree that contains one.
+    Typed{
+        inner: Box<AlephTree>,
+        ty: Type
+    },
+
+    // Declares a sum type: `type Shape = Circle(radius: Float) | Rect(w: Float, h: Float)`.
+    // Reuses `types::Variant` — the same shape `Type::Sum` uses — rather
+    // than a raw tuple, for the same reasons (named field access, cleaner
+    // wire format).
+    TypeDef{
+        name: String,
+        variants: Vec<crate::types::Variant>
+    },
+
+    // Declares the effect row of a function body (`pure`, `io`, `net`,
+    // `mut`, `act`). See `crate::effects::Effect`.
+    WithEffects{
+        inner: Box<AlephTree>,
+        effects: EffectSet
+    },
 }
 
 pub fn json_parse(source: String) -> AlephTree {
@@ -983,5 +1027,53 @@ impl AlephTree {
                 panic!()
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::effects::Effect;
+    use crate::types::Type;
+
+    #[test]
+    fn typed_node_round_trips_through_json() {
+        let node = AlephTree::Typed {
+            inner: Box::new(AlephTree::Ident { value: "n".to_string() }),
+            ty: Type::Int,
+        };
+        let json = to_json(node.clone());
+        let back = json_parse(json);
+        assert_eq!(node, back);
+    }
+
+    #[test]
+    fn type_def_round_trips_through_json() {
+        use crate::types::Variant;
+        let node = AlephTree::TypeDef {
+            name: "Shape".to_string(),
+            variants: vec![
+                Variant { name: "Circle".to_string(), fields: vec![Type::Float] },
+                Variant { name: "Rect".to_string(), fields: vec![Type::Float, Type::Float] },
+            ],
+        };
+        let json = to_json(node.clone());
+        let back = json_parse(json);
+        assert_eq!(node, back);
+    }
+
+    #[test]
+    fn with_effects_node_round_trips_through_json() {
+        let node = AlephTree::WithEffects {
+            inner: Box::new(AlephTree::App {
+                object_name: "".to_string(),
+                fun: Box::new(AlephTree::Ident { value: "print".to_string() }),
+                param_list: Vec::new(),
+            }),
+            effects: crate::effects::EffectSet::from([Effect::Io]),
+        };
+        let json = to_json(node.clone());
+        let back = json_parse(json);
+        assert_eq!(node, back);
     }
 }
