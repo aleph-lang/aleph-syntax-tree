@@ -4,21 +4,6 @@ use serde::{Deserialize, Serialize};
 use crate::types::Type;
 use crate::effects::EffectSet;
 
-// `AlephTree` derives `EnumString` (strum), whose `FromStr` impl parses a
-// tag name back into a variant by constructing every struct-like variant's
-// fields via `Default::default()` (the field values are irrelevant to that
-// parse — only the tag matters). That means every field type across every
-// variant must implement `Default`, including `Typed`'s `ty: Type`.
-// `types::Type` intentionally doesn't derive `Default` itself (this crate's
-// Task 3 scope is `src/syntax.rs` only), so it's provided here instead —
-// legal because `Type` is a local type, even though this `impl` block
-// lives outside its defining module.
-impl Default for Type {
-    fn default() -> Self {
-        Type::Unit
-    }
-}
-
 #[derive(Default, PartialEq, Debug, Serialize, Deserialize, Clone, EnumString)]
 #[serde(tag="type")]
 pub enum AlephTree {

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// `TypeDef`'s variant fields. Deliberately small: enough to type-check
 /// records, sum types, and function signatures (see the Aleph-Next spec)
 /// without committing yet to full parametric polymorphism.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum Type {
     /// 64-bit signed integer.
@@ -18,6 +18,7 @@ pub enum Type {
     /// Raw byte sequence.
     Bytes,
     /// The single-valued "nothing" type.
+    #[default]
     Unit,
     /// Homogeneous list of `elem`.
     List { elem: Box<Type> },
